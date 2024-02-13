@@ -15,14 +15,28 @@ import static org.example.database.DatabaseManager.creerEtEnregistrerUtilisateur
 public class DataManager {
     public static void processData(SparkSession spark, Connection connection, Dataset<Row> dataCleaned) throws SQLException {
 
-        int regimeID = RegimesFactory.getRegimeIdByName(connection, "Hypoglycémique");
-        creerEtEnregistrerUtilisateur(connection, "Jean", 175, Sexe.Homme, 80 , regimeID);
+        String hypoRegime = "Hypoglycémique";
+        String fodmapRegime = "Fodmap";
+        String mediterraneanRegime = "Mediterranean";
 
-        if (regimeID > 0) {
+
+        int hypoRegimeID = RegimesFactory.getRegimeIdByName(connection, hypoRegime);
+        int fodmapRegimeID = RegimesFactory.getRegimeIdByName(connection, fodmapRegime);
+        int mediterraneanRegimeID = RegimesFactory.getRegimeIdByName(connection, mediterraneanRegime);
+
+
+
+        creerEtEnregistrerUtilisateur(connection, "Jean", 175, Sexe.Homme, 80 , hypoRegimeID);
+        creerEtEnregistrerUtilisateur(connection, "Jack", 155, Sexe.Femme, 90 , fodmapRegimeID);
+        creerEtEnregistrerUtilisateur(connection, "Alice", 196, Sexe.Femme, 50 , mediterraneanRegimeID);
+
+
+
+        if (mediterraneanRegimeID > 0) {
             float imc = UtilisateursFactory.getIMC(connection, "Jean");
             if (imc != -1) {
                 List<Jour> joursDeLaSemaine = JourFactory.getAllJours(connection);
-                List<RepaParJour> repasSemaine = MealGenerator.generateBalancedMeals(dataCleaned, connection, imc);
+                List<RepaParJour> repasSemaine = MealGenerator.generateBalancedMeals(dataCleaned, connection, imc, mediterraneanRegime);
                 for (RepaParJour repaJour : repasSemaine) {
                     System.out.println("------------Jour : " + repaJour.getJour() + "---------");
                     for (Repa repa : repaJour.getRepas()) {
